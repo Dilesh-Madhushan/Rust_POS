@@ -1,17 +1,47 @@
-'use client'
+'use client';
 
-import { SetStateAction, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 
-export default function Greet() {
-  const [greeting, setGreeting] = useState('');
+export default function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    invoke<string>('greet', { name: 'Next.js' })
-      .then((result: SetStateAction<string>) => setGreeting(result))
-      .catch(console.error)
-  }, [])
+  const handleLogin = async () => {
+    try {
+      const response = await invoke<string>('login', { username, password });
+      setMessage(response); // Response could be a success message or token.
+    } catch (error) {
+      console.error(error);
+      setMessage('Login failed. Please try again.');
+    }
+  };
 
-  // Necessary because we will have to use Greet as a component later.
-  return <div>{greeting}</div>;
+  return (
+    <div style={{ padding: '20px', maxWidth: '300px', margin: 'auto', textAlign: 'center' }}>
+      <h1>Login</h1>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
+      />
+      <button
+        onClick={handleLogin}
+        style={{ padding: '10px 20px', cursor: 'pointer' }}
+      >
+        Login
+      </button>
+      {message && <p style={{ marginTop: '10px' }}>{message}</p>}
+    </div>
+  );
 }
